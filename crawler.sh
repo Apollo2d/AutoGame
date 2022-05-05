@@ -13,6 +13,10 @@ RANGE=/2021/Day3
 # get all files since 1996
 # RANGE=/
 
+if [ ! -d "$BIN_DIR" ]; then
+  mkdir -p "$BIN_DIR"
+fi
+
 function get {
   local url
   url=$1

@@ -57,6 +57,7 @@ BIN_DIR="$BASE_DIR/bin" # The location of your binary team
 PORT=6000
 MAX_PORT=6300
 LOG_DIR="$BASE_DIR/log/$(date +%Y%m%d%H%M%S)"
+PEN=false # set true to only play penalty kick
 ```
 
 ## Start the game

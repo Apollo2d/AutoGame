@@ -24,6 +24,7 @@ declare -a TEAMS
 
 cd "$BASE_DIR" || exit 255
 
+
 # TODO：使用信号一进行热重载
 i=0
 function get_team {
@@ -46,7 +47,7 @@ function get_start {
   # Start game
   while true; do
     for ((i = 0; i < ${#TEAMS[@]}; ++i)); do
-      LOAD="$(uptime | cut -d ' ' -f 13 | sed 's/,//g')"
+      LOAD="$(uptime | awk '{print $10}' | sed 's/,//g')"
       USED_MEM="$(free -t | awk '/Total/ {print $3}')"
       RUN="$(pgrep -c rcssserver)"
       echo -ne "\rCurrent Load: $LOAD/$MAX_LOAD/$CORE Current Memory:$USED_MEM/$MAX_MEM/$MEMORY"

@@ -9,6 +9,21 @@ BASE_DIR="$(dirname "$(readlink -f "$0")")"
 LOG_DIR="$BASE_DIR/log/$(date +%Y%m%d%H%M%S)"
 mkdir -p "$LOG_DIR"
 
+PEN=false
+
+MODE_ARG="server::auto_mode=on"
+MODE_ARG="$MODE_ARG CSVSaver::save=on"
+MODE_ARG="$MODE_ARG server::text_log_dir=$LOG_DIR"
+MODE_ARG="$MODE_ARG server::game_log_dir=$LOG_DIR"
+
+if [ $PEN ]; then
+  PEN_ARG="server::half_time=1"
+  PEN_ARG="server::nr_normal_halfs=1 $PEN_ARG"
+  PEN_ARG="server::extra_half_time=0 $PEN_ARG"
+  PEN_ARG="server::nr_extra_halfs=0 $PEN_ARG"
+
+  PEN_ARG="server::penalty_shoot_outs=on $PEN_ARG"
+fi
 # Help menu
 function help {
   cat <<EOF
@@ -17,7 +32,7 @@ Usage:
 EOF
 }
 
-while getopts "l:r:p:" opt; do
+while getopts "kl:r:p:" opt; do
   case $opt in
   l)
     LEFT=$OPTARG
@@ -31,7 +46,7 @@ while getopts "l:r:p:" opt; do
   esac
 done
 
-if [[ -x $LEFT && -x $RIGHT ]]; then
+if [[ -x "$LEFT" && "$RIGHT" ]]; then
   # Find available port
   while [[ -n "$(lsof -i:$PORT)" && PORT -lt $MAX_PORT ]]; do
     PORT=$((PORT + 3))
@@ -42,12 +57,10 @@ if [[ -x $LEFT && -x $RIGHT ]]; then
   fi
 
   SERVER_PORT_ARG="server::port=$PORT server::olcoach_port=$((PORT + 2)) server::coach_port=$((PORT + 1))"
-  MODE_ARG="server::auto_mode=on CSVSaver::save=on server::text_log_dir=$LOG_DIR server::game_log_dir=$LOG_DIR"
 
   cd "$BASE_DIR" || exit 255
-  rcssserver $MODE_ARG $SERVER_PORT_ARG 2>>/dev/null 1>/dev/null &
+  rcssserver $MODE_ARG $SERVER_PORT_ARG $PEN_ARG 2>/dev/null 1>/dev/null &
   sleep 1
-
   if [ "$LEFT" = "$RIGHT" ]; then
     NAME_ARG="-t same_team"
   fi
