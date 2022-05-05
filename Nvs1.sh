@@ -68,6 +68,5 @@ if [ -z "${TEAMS[0]}" ]; then
   echo "Teams is empty"
   exit 254
 fi
-echo "${#TEAMS[@]}"
-exit 0
+# echo "${TEAMS[@]}"
 get_start
