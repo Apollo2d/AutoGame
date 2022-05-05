@@ -1,41 +1,73 @@
 #!/usr/bin/env bash
 
-PORT=6000
-MAX_PORT=6300
+MASTER_TEAM=/home/kawhicurry/Code/Apollo/NewApolloBase/build/Apollo-exe/start.sh
+
+# cpu load limit
+CORE=$(nproc)
+LOAD_RATE=0.7
+MAX_LOAD=$(echo "$CORE * $LOAD_RATE" | bc)
+
+# memory limit
+MEMORY=$(free -t | awk '/Total/ {print $2}')
+MEM_RATE=0.6
+MAX_MEM=$(echo "$MEMORY * $MEM_RATE" | bc)
+
+# manual limit
+MAX_RUN=5
+
+SLEEP_TIME=5 # seconds
+
 BASE_DIR="$(dirname "$(readlink -f "$0")")"
 BIN_DIR="$BASE_DIR/bin"
 
-REMOTE_DIR="https://archive.robocup.info/"
-REMOTE_DIR="https://archive.robocup.info/Soccer/Simulation/2D/binaries/RoboCup/"
 declare -a TEAMS
 
-cd -q "$BASE_DIR" || exit 255
-
-function get_team() {
-  curl "$REMOTE_DIR/Soccer/Simulation/2D/binaries/RoboCup/" | grep -oP '(?<=alt="folder"/></td><td class="fb-n"><a href=")([\s\S]*?)(?=">)'
-  # curl $url | grep -oP '(?<=file"/></td><td class="fb-n"><a href=")(([\s\S])*?)\.tar\.gz'
-}
+cd "$BASE_DIR" || exit 255
 
 # TODO：使用信号一进行热重载
+i=0
 function get_team {
-  i=0
-  for dir in $BIN_DIR/*; do
-    if [[ -d $dir && -x $dir/start.sh ]]; then
-      TEAMS[i]="$dir/start.sh"
-      i=$((++i))
+  local dirs
+  dirs=$1
+
+  for dir in "$dirs"/*; do
+    if [ -d "$dir" ]; then
+      if [ -x "$dir/start.sh" ]; then
+        TEAMS[i]="$dir/start.sh"
+        i=$((++i))
+      else
+        get_team "$dir"
+      fi
     fi
   done
-  echo "${TEAMS[@]}"
 }
 
-# Find available port
-function get_port {
-  while [[ -z "$(lsof -i:$PORT)" && PORT -lt $MAX_PORT ]]; do
-    echo $PORT
-    PORT=$((PORT + 3))
+function get_start {
+  # Start game
+  while true; do
+    for ((i = 0; i < ${#TEAMS[@]}; ++i)); do
+      LOAD="$(uptime | cut -d ' ' -f 13 | sed 's/,//g')"
+      USED_MEM="$(free -t | awk '/Total/ {print $3}')"
+      RUN="$(pgrep -c rcssserver)"
+      echo -ne "\rCurrent Load: $LOAD/$MAX_LOAD/$CORE Current Memory:$USED_MEM/$MAX_MEM/$MEMORY"
+      if [[ ("$(echo "$LOAD < $MAX_LOAD" | bc)" -eq 1) && ("$(echo "$USED_MEM < $MAX_MEM" | bc)" -eq 1) && ("$(echo "$RUN < $MAX_RUN" | bc)" -eq 1) ]]; then
+        echo -ne "\r                                                                                                                    \r"
+        echo -ne "Start game with ${TEAMS[i]}\n"
+        "$BASE_DIR"/1vs1.sh -l "$MASTER_TEAM" -r "${TEAMS[i]}"
+      else
+        sleep $SLEEP_TIME
+        continue
+      fi
+    done
   done
-  if [ $PORT -ge $MAX_PORT ]; then
-    echo "no avilable port"
-    return 254
-  fi
 }
+
+get_team "$BIN_DIR"
+
+if [ -z "${TEAMS[0]}" ]; then
+  echo "Teams is empty"
+  exit 254
+fi
+echo "${#TEAMS[@]}"
+exit 0
+get_start
