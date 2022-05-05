@@ -71,6 +71,17 @@ Current load:[current load]/[lower load to run]/[max load(the core of your compu
 Current memory:[current memory]/[lower memory to run]/[max memory]
 ```
 
+## Using monitor
+When games are running, you can use your monitor to connect them with particular port.
+
+A example here:
+```bash
+rcssmonitor --server-port 6003
+```
+The server using 3 sequence ports every time.So the port should be `$PORT+3*k`.
+
+The `$PORT` is defined in `1vs1.sh`, k is a integer.
+
 ## Collect information
 Since we've enable `CSVSave` in `1vs1.sh`, a `rcssserver.csv` which records the scores will appear in this directory.
 
