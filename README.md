@@ -1,5 +1,4 @@
 # AutoGame
-## by kawhicurry in NJUPT in 2022/5/5
 
 # TLDR
 
@@ -15,7 +14,7 @@ This is a series of tools aiming to test your team automatically and efficiently
 You can get the latest version of teams from [Robocup](https://archive.robocup.info/Soccer/Simulation/2D/), and have games with them. After
 the game, you will get a detailed report about the behavior of your team.
 
-# Configure
+# Configuration
 
 ## Get teams
 You need to prepare the binaries of your opponents at first.
@@ -82,7 +81,7 @@ The server using 3 sequence ports every time.So the port should be `$PORT+3*k`.
 
 The `$PORT` is defined in `1vs1.sh`, k is a integer.
 
-## Collect information
+## Collect data
 Since we've enable `CSVSave` in `1vs1.sh`, a `rcssserver.csv` which records the scores will appear in this directory.
 
 The log file will be saved into $LOG_DIR which default value if log/
@@ -91,10 +90,14 @@ TODO: adding support of `loganalyzer3`
 
 # FAQ
 
-1. How does crawler works?
+1. How does crawler work?
 
 It search and downloads teams binary from <https://archive.robocup.info/Soccer/Simulation/2D/binaries/RoboCup/> into `bin/` and extract those ends with `.tar.gz`
 
 You can configure it by yourself.
 
+# License
+[MIT](https://opensource.org/licenses/MIT)
 
+# Author
+by kawhicurry in NJUPT in 2022/5/5
