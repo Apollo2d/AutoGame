@@ -7,11 +7,11 @@ BIN_DIR="$BASE_DIR/bin"
 SKIP=1
 
 # get files in day1,2021
-RANGE=/2021/Day3
+# RANGE=/2021/Day3
 # get all files in 2021
 # RANGE=/2021
 # get all files since 1996
-# RANGE=/
+RANGE=/
 
 if [ ! -d "$BIN_DIR" ]; then
   mkdir -p "$BIN_DIR"

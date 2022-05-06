@@ -8,7 +8,7 @@ LOAD_RATE=0.7
 MAX_LOAD=$(echo "$CORE * $LOAD_RATE" | bc)
 
 # memory limit
-MEMORY=$(free -t | awk '/Total/ {print $2}')
+MEMORY=$(free -t | awk '/[Total|总量]/ {print $2}')
 MEM_RATE=0.6
 MAX_MEM=$(echo "$MEMORY * $MEM_RATE" | bc)
 
@@ -23,7 +23,6 @@ BIN_DIR="$BASE_DIR/bin"
 declare -a TEAMS
 
 cd "$BASE_DIR" || exit 255
-
 
 # TODO：使用信号一进行热重载
 i=0
@@ -48,7 +47,7 @@ function get_start {
   while true; do
     for ((i = 0; i < ${#TEAMS[@]}; ++i)); do
       LOAD="$(uptime | awk '{print $10}' | sed 's/,//g')"
-      USED_MEM="$(free -t | awk '/Total/ {print $3}')"
+      USED_MEM="$(free -t | awk '/[Total|总量]/ {print $3}')"
       RUN="$(pgrep -c rcssserver)"
       echo -ne "\rCurrent Load: $LOAD/$MAX_LOAD/$CORE Current Memory:$USED_MEM/$MAX_MEM/$MEMORY"
       if [[ ("$(echo "$LOAD < $MAX_LOAD" | bc)" -eq 1) && ("$(echo "$USED_MEM < $MAX_MEM" | bc)" -eq 1) && ("$(echo "$RUN < $MAX_RUN" | bc)" -eq 1) ]]; then
