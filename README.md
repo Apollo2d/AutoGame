@@ -2,10 +2,10 @@
 
 # TLDR
 
-1. Download team files `*.tar.gz` into `autogame/bin` ( by directly run `crawler.sh` )
-2. Check configuration in `Nvs1.sh` and `1vs1.sh`
-3. Run `./Nvs1.sh`
-4. Check result in `rcssserver.csv` and log in `log/`
+1. Download team files `*.tar.gz` into `autogame/bin` ( by directly run `crawler.sh` ).
+2. Copy or rename `example.config.sh` to `config.sh` and modified the variables inside it.
+3. Run `./Nvs1.sh`.
+4. Check result in `rcssserver.csv` and log in `log/`.
 
 # Introduction
 
@@ -26,10 +26,9 @@ A range should be specified before using it.
 The scripts will detect your `start.sh` script during running. You need to make sure all `start.sh` are executable and support specifying the port with argument `-p`.
 
 ## Check variables
-A set of variables is set in `Nvs1.sh` and `1vs1.sh`.
+~~A set of variables is set in `Nvs1.sh` and `1vs1.sh`.~~ All variables are moves into `example.config.sh`. You need to copy it or rename it to `config.sh` and check the variables inside it.
 
 ```bash
-# Nvs1.sh
 # specify your home team
 MASTER_TEAM=/home/kawhicurry/Code/Apollo/NewApolloBase/build/Apollo-exe/start.sh
 
@@ -47,7 +46,6 @@ MAX_MEM=$(echo "$MEMORY * $MEM_RATE" | bc)
 MAX_RUN=5 # The max number of server
 
 SLEEP_TIME=5 # The poll time
-BIN_DIR="$BASE_DIR/bin" # The location of your binary team
 ```
 
 ```bash

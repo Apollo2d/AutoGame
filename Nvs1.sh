@@ -1,24 +1,13 @@
 #!/usr/bin/env bash
 
-MASTER_TEAM=/home/kawhicurry/Code/Apollo/NewApolloBase/build/Apollo-exe/start.sh
-
-# cpu load limit
-CORE=$(nproc)
-LOAD_RATE=0.7
-MAX_LOAD=$(echo "$CORE * $LOAD_RATE" | bc)
-
-# memory limit
-MEMORY=$(free -t | awk '/Total/||/总量/ {print $2}')
-MEM_RATE=0.6
-MAX_MEM=$(echo "$MEMORY * $MEM_RATE" | bc)
-
-# manual limit
-MAX_RUN=5
-
-SLEEP_TIME=5 # seconds
-
 BASE_DIR="$(dirname "$(readlink -f "$0")")"
-BIN_DIR="$BASE_DIR/bin"
+
+if [ -f "$BASE_DIR/config.sh" ]; then
+  source "$BASE_DIR/config.sh"
+else
+  echo "Cannot find $BASE_DIR/config.sh"
+  exit 253
+fi
 
 declare -a TEAMS
 
@@ -29,7 +18,6 @@ i=0
 function get_team {
   local dirs
   dirs=$1
-
   for dir in "$dirs"/*; do
     if [ -d "$dir" ]; then
       if [ -x "$dir/start.sh" ]; then
@@ -61,8 +49,6 @@ function get_start {
     done
   done
 }
-
-get_team "$BIN_DIR"
 
 if [ -z "${TEAMS[0]}" ]; then
   echo "Teams is empty"
