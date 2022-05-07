@@ -34,11 +34,11 @@ function get_start {
   # Start game
   while true; do
     for ((i = 0; i < ${#TEAMS[@]}; ++i)); do
-      LOAD="$(uptime | awk '{print $10}' | sed 's/,//g')"
-      USED_MEM="$(free -t | awk '/Total/||/总量]/ {print $3}')"
+      LOAD="$(uptime | grep -o 'average:.*' | awk '{print $2}' | sed 's/,//g')"
+      USED_MEM="$(free -t | awk '/Total/||/总量/ {print $3}')"
       RUNNING="$(pgrep -c rcssserver)"
-      echo -ne "\rCurrent Load: $LOAD/$MAX_LOAD/$CORE Current Memory:$USED_MEM/$MAX_MEM/$MEMORY"
-      if [[ ("$(echo "$LOAD < $MAX_LOAD" | bc)" -eq 1) && ("$(echo "$USED_MEM < $MAX_MEM" | bc)" -eq 1) && ("$(echo "$RUNNING < $MAX_RUN" | bc)" -eq 1) ]]; then
+      echo -ne "\rCurrent/Limit Load: $LOAD/$MAX_LOAD Memory:$USED_MEM/$MAX_MEM Running:$RUNNING/$MAX_RUNNING"
+      if [[ ("$(echo "$LOAD < $MAX_LOAD" | bc)" -eq 1) && ("$(echo "$USED_MEM < $MAX_MEM" | bc)" -eq 1) && ("$(echo "$RUNNING < $MAX_RUNNING" | bc)" -eq 1) ]]; then
         echo -ne "\r                                                                                                                    \r"
         echo -ne "Start game with ${TEAMS[i]}\n"
         "$BASE_DIR"/1vs1.sh -l "$MASTER_TEAM" -r "${TEAMS[i]}"
@@ -50,6 +50,7 @@ function get_start {
   done
 }
 
+get_team "$BASE_DIR/bin"
 if [ -z "${TEAMS[0]}" ]; then
   echo "Teams is empty"
   exit 254

@@ -16,8 +16,8 @@ MAX_MEM=$(echo "$MEMORY * $MEM_RATE" | bc)
 export MEMRORY MEM_RATE MAX_MEM
 
 # manual limit
-MAX_RUN=5
-export MAX_RUN
+MAX_RUNNING=5
+export MAX_RUNNING
 
 SLEEP_TIME=5 # seconds
 export SLEEP_TIME
