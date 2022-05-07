@@ -5,25 +5,24 @@ MAX_PORT=6300
 
 BASE_DIR="$(dirname "$(readlink -f "$0")")"
 # BIN_DIR="$BASE_DIR/bin"
+source "$BASE_DIR/config.sh"
 
 LOG_DIR="$BASE_DIR/log/$(date +%Y%m%d%H%M%S)"
 mkdir -p "$LOG_DIR"
-
-PEN=false
 
 MODE_ARG="server::auto_mode=on"
 MODE_ARG="$MODE_ARG CSVSaver::save=on"
 MODE_ARG="$MODE_ARG server::text_log_dir=$LOG_DIR"
 MODE_ARG="$MODE_ARG server::game_log_dir=$LOG_DIR"
 
-if [ $PEN ]; then
+if [ $PEN_ONLY = true ]; then
   PEN_ARG="server::half_time=1"
   PEN_ARG="server::nr_normal_halfs=1 $PEN_ARG"
   PEN_ARG="server::extra_half_time=0 $PEN_ARG"
   PEN_ARG="server::nr_extra_halfs=0 $PEN_ARG"
-
   PEN_ARG="server::penalty_shoot_outs=on $PEN_ARG"
 fi
+
 # Help menu
 function help {
   cat <<EOF

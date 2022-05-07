@@ -19,5 +19,5 @@ export MEMRORY MEM_RATE MAX_MEM
 MAX_RUNNING=5
 export MAX_RUNNING
 
-SLEEP_TIME=5 # seconds
-export SLEEP_TIME
+PEN_ONLY=false # true or false
+export PEN_ONLY
