@@ -69,7 +69,7 @@ if [ -x "$LEFT" ]; then
     cd "$(dirname "$RIGHT")" || exit 255
     $RIGHT -p $PORT $NAME_ARG 2>/dev/null 1>/dev/null &
   else
-    echo "Cannot run Left:$RIGHT"
+    echo "Cannot run right:$RIGHT"
     help
     exit 255
   fi
