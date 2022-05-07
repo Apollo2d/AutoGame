@@ -45,29 +45,36 @@ while getopts "kl:r:p:" opt; do
   esac
 done
 
-if [[ -x "$LEFT" && "$RIGHT" ]]; then
-  # Find available port
-  while [[ -n "$(lsof -i:$PORT)" && PORT -lt $MAX_PORT ]]; do
-    PORT=$((PORT + 3))
-  done
-  if [ $PORT -ge $MAX_PORT ]; then
-    echo "no avilable port"
-    return 254
-  fi
+if [ -x "$LEFT" ]; then
+  if [ -x "$RIGHT" ]; then
+    # Find available port
+    while [[ -n "$(lsof -i:$PORT)" && PORT -lt $MAX_PORT ]]; do
+      PORT=$((PORT + 3))
+    done
+    if [ $PORT -ge $MAX_PORT ]; then
+      echo "no avilable port"
+      return 254
+    fi
 
-  SERVER_PORT_ARG="server::port=$PORT server::olcoach_port=$((PORT + 2)) server::coach_port=$((PORT + 1))"
+    SERVER_PORT_ARG="server::port=$PORT server::olcoach_port=$((PORT + 2)) server::coach_port=$((PORT + 1))"
 
-  cd "$BASE_DIR" || exit 255
-  rcssserver $MODE_ARG $SERVER_PORT_ARG $PEN_ARG 2>/dev/null 1>/dev/null &
-  sleep 1
-  if [ "$LEFT" = "$RIGHT" ]; then
-    NAME_ARG="-t same_team"
+    cd "$BASE_DIR" || exit 255
+    rcssserver $MODE_ARG $SERVER_PORT_ARG $PEN_ARG 2>/dev/null 1>/dev/null &
+    sleep 1
+    if [ "$LEFT" = "$RIGHT" ]; then
+      NAME_ARG="-t same_team"
+    fi
+    cd "$(dirname "$LEFT")" || exit 255
+    $LEFT -p $PORT 2>/dev/null 1>/dev/null &
+    cd "$(dirname "$RIGHT")" || exit 255
+    $RIGHT -p $PORT $NAME_ARG 2>/dev/null 1>/dev/null &
+  else
+    echo "Cannot run Left:$RIGHT"
+    help
+    exit 255
   fi
-  cd "$(dirname "$LEFT")" || exit 255
-  $LEFT -p $PORT 2>/dev/null 1>/dev/null &
-  cd "$(dirname "$RIGHT")" || exit 255
-  $RIGHT -p $PORT $NAME_ARG 2>/dev/null 1>/dev/null &
 else
+  echo "Cannot run Left:$LEFT"
   help
   exit 255
 fi
