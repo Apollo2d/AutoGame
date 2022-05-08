@@ -24,3 +24,6 @@ export SLEEP_TIME
 
 PEN_ONLY=false # true or false
 export PEN_ONLY
+
+PID_FILE=/tmp/autogame.pid
+export PID_FILE

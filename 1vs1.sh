@@ -59,6 +59,7 @@ if [[ -x "$LEFT" && "$RIGHT" ]]; then
 
   cd "$BASE_DIR" || exit 255
   rcssserver $MODE_ARG $SERVER_PORT_ARG $PEN_ARG 2>/dev/null 1>/dev/null &
+  echo $$ >>"$PID_FILE"
   sleep 1
   if [ "$LEFT" = "$RIGHT" ]; then
     NAME_ARG="-t same_team"
@@ -67,6 +68,7 @@ if [[ -x "$LEFT" && "$RIGHT" ]]; then
   $LEFT -p $PORT 2>/dev/null 1>/dev/null &
   cd "$(dirname "$RIGHT")" || exit 255
   $RIGHT -p $PORT $NAME_ARG 2>/dev/null 1>/dev/null &
+  exit 0
 else
   help
   exit 255
