@@ -1,8 +1,10 @@
 # AutoGame
 
+A tool that allow you to run multiple games of [Robocup Soccer 2D](https://rcsoccersim.github.io/).
+
 # TLDR
 
-1. Download team files `*.tar.gz` into `autogame/bin` ( by directly run `crawler.sh` ).
+1. Download team files `*.tar.gz` and extract them to `autogame/bin` ( a `crawler.sh` may help).
 2. Copy or rename `example.config.sh` to `config.sh` and modified the variables inside it.
 3. Run `./Nvs1.sh`.
 4. Check result in `rcssserver.csv` and log in `log/`.
@@ -21,7 +23,8 @@ You need to prepare the binaries of your opponents at first.
 The location is set with variable `BIN_DIR` in `Nvs1.sh` with default value `bin/`
 
 You can get your own binaries or download it online. We prepared a tool that help you get the latest version of teams from [Robocup](https://archive.robocup.info/Soccer/Simulation/2D/) by using script `crawler.sh`.
-A range should be specified before using it.
+
+**A range should be specified before using it.**
 
 The scripts will detect your `start.sh` script during running. You need to make sure all `start.sh` are executable and support specifying the port with argument `-p`.
 
@@ -99,4 +102,4 @@ You can configure it by yourself.
 [MIT](https://opensource.org/licenses/MIT)
 
 # Author
-by kawhicurry in NJUPT in 2022/5/5
+Designed by kawhicurry in NJUPT in 2022/5/5
