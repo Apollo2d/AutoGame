@@ -4,6 +4,7 @@ BASE_DIR="$(dirname "$(readlink -f "$0")")"
 # BIN_DIR="$BASE_DIR/bin"
 source "$BASE_DIR/config.sh"
 
+# TODO: 从start.sh中读取信息
 # Help menu
 function help {
   cat <<EOF
@@ -39,6 +40,7 @@ if [ -x "$LEFT" ]; then
       echo "no avilable port"
       return 254
     fi
+    echo -ne " in port:$PORT\n"
     SERVER_PORT_ARG="server::port=$PORT server::olcoach_port=$((PORT + 2)) server::coach_port=$((PORT + 1))"
 
     # Prepare the log_dir
@@ -83,7 +85,8 @@ if [ -x "$LEFT" ]; then
     $RIGHT -p $PORT $DEBUG_ARG_RIGHT $NAME_ARG &>"$LOG_DIR/right.log" &
     exit 0
   else
-    echo "Cannot run Left:$LEFT"
+    # echo "Cannot run Left:$LEFT"
+    echo -ne "failed\n"
     help
     exit 255
   fi

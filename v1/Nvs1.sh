@@ -47,7 +47,7 @@ function get_start {
       if [ ! -f "$PID_FILE" ]; then
         touch "$PID_FILE"
       fi
-      if [ $((COUNT - RUNNING)) -gt $MAX_RUN_TOTAL ]; then
+      if [ $((COUNT - RUNNING)) -ge $MAX_RUN_TOTAL ]; then
         echo "Finished all $MAX_RUN_TOTAL games"
         exit 0
       fi
@@ -62,7 +62,7 @@ function get_start {
       ("$(echo "$RUNNING < $MAX_RUNNING" | bc)" -eq 1) &&
       "$(echo "$COUNT < $MAX_RUN_TOTAL" | bc)" -eq 1 ]]; then
         echo -ne "\r                                                                                                                    \r"
-        echo -ne "Start game $((++COUNT)) with ${TEAMS[i]}\n"
+        echo -ne "Start game $((++COUNT)) with ${TEAMS[i]}"
         "$BASE_DIR"/1vs1.sh -l "$MASTER_TEAM" -r "${TEAMS[i]}"
       else
         sleep $SLEEP_TIME
