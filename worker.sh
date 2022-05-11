@@ -98,7 +98,6 @@ function get_server_conf {
 
 function get_start {
   rcssserver $server_args &>$LOG_DIR/server.log &
-
   server_pid=$!
   sleep 1
   if [ "$left_team_name" = "$right_team_name" ]; then
@@ -116,13 +115,13 @@ function get_start {
     for ((i = 1; i <= 12; ++i)); do
       case $i in
       1)
-        $left_player -g $left_player_args -t $left_team_name &>$LOG_DIR/$left_team_name-$i.out.log &
+        $left_player -g $left_player_args -t $left_team_name &>$LOG_DIR/$left_team_name-player-$i.out.log &
         ;;
       12)
         $left_coach $left_coach_args -t $left_team_name &>$LOG_DIR/$left_team_name-coach.out.log &
         ;;
       *)
-        $left_player $left_player_args -t $left_team_name &>$LOG_DIR/$left_team_name-$i.out.log &
+        $left_player $left_player_args -t $left_team_name &>$LOG_DIR/$left_team_name-player-$i.out.log &
         ;;
       esac
       left_pid[$i]=$!
@@ -135,18 +134,17 @@ function get_start {
     if [ -n "$(find "$right_team" -name "librcsc.so")" ]; then
       cd "$right_team" || exit 255
       export LD_LIBRARY_PATH=.
-      echo $LD_LIBRARY_PATH
     fi
     for ((i = 1; i <= 12; ++i)); do
       case $i in
       1)
-        $right_player -g $right_player_args -t $right_team_name &>$LOG_DIR/$right_team_name-$i.out.log &
+        $right_player -g $right_player_args -t $right_team_name &>$LOG_DIR/$right_team_name-player-$i.out.log &
         ;;
       12)
         $right_coach $right_coach_args -t $right_team_name &>$LOG_DIR/$right_team_name-coach.out.log &
         ;;
       *)
-        $right_player $right_player_args -t $right_team_name &>$LOG_DIR/$right_team_name-$i.out.log &
+        $right_player $right_player_args -t $right_team_name &>$LOG_DIR/$right_team_name-player-$i.out.log &
         ;;
       esac
       right_pid[$i]=$!
@@ -157,12 +155,28 @@ function get_start {
 
 function get_check {
   sleep 5
-  for pid in "${left_pid[@]}"; do
-    echo $pid
+  local count
+  count=1
+  for pid in "${left_pid[@]}" "${right_pid[@]}"; do
+    if [ ! -e "/proc/$pid" ]; then
+      if [ $count -gt 12 ]; then
+        side=$right_team_name
+        count=$((count % 12))
+      else
+        side=$left_team_name
+      fi
+      if [ $count -eq 0 ]; then
+        count="coach"
+      else
+        count="player-$count"
+      fi
+      echo "Error: $side $count didn't work" >&2
+      echo "Please check $LOG_DIR/$side-$count.out.log"
+      exit 252
+    fi
   done
-  for pid in "${right_pid[@]}"; do
-    echo 123
-  done
+  echo "$left_team_name VS $right_team_name in port: $port"
+
   wait $server_pid
   exit 0
 }
