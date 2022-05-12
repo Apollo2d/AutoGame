@@ -1,5 +1,7 @@
 *.csv
 *.html
+*.log
+*.lock
 bin/*
 log/*
 config.sh

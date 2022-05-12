@@ -17,7 +17,7 @@ export MEMRORY MEM_RATE MAX_MEM
 
 # manual limit
 MAX_RUNNING=5
-MAX_RUN_TOTAL=10
+MAX_RUN_TOTAL=100000
 export MAX_RUNNING MAX_RUN_TOTAL
 
 # port limit
@@ -34,9 +34,10 @@ DEBUG=true
 export DEBUG
 
 # penalty mode
-PEN_ONLY=false # true or false
+PEN_ONLY=true
 export PEN_ONLY
 
-# pid files
-PID_FILE=/tmp/autogame.pid
-export PID_FILE
+# log files
+LOG_FILE="$BASE_DIR/autogame.log"
+LOCK_FILE="$BASE_DIR/autogame.lock"
+export LOG_FILE LOCK_FILE

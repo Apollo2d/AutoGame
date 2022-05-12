@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
-
+# set -x
 # TODO: more flags is needed
 # TODO: document the necessary configuration
+LD_LIBRARY_PATH=".:./lib"
+export LD_LIBRARY_PATH
+
+function add_log {
+  echo -e "$(date) Worker: $*" >>"$LOG_FILE"
+}
 
 if [ $# -lt 4 ]; then
   cat <<EOF
@@ -10,8 +16,8 @@ arg1: left team start.sh
 arg2: right team start.sh
 arg3: penalty only flag
 arg4: debug flag
-arg5: other options
 EOF
+  # arg5: other options
   exit 254
 fi
 
@@ -24,15 +30,25 @@ function get_conf {
   if [ -f "$BASE_DIR/config.sh" ]; then
     source "$BASE_DIR/config.sh"
   else
-    echo "Cannot find $BASE_DIR/config.sh. Generate one now. Modified it before running"
+    add_log "Cannot find $BASE_DIR/config.sh. Generate one now. Modified it before running"
     cp "$BASE_DIR/example.config.sh" "$BASE_DIR/config.sh"
     exit 253
   fi
 }
 
 function get_team_conf {
-  if [ -f "$1" ]; then
-    left_team=$(dirname "$(readlink -f "$1")")
+  # Random side
+  if [ $((RANDOM % 2)) -eq 0 ]; then
+    left=$1
+    right=$2
+  else
+    left=$2
+    right=$1
+  fi
+
+  # get necessary team information
+  if [ -f "$left" ]; then
+    left_team=$(dirname "$(readlink -f "$left")")
     left_team_name=$(basename "$left_team")
     left_player=$(find "$left_team" -iname "*player")
     left_player_config=$(find "$left_team" -iname "player.conf")
@@ -43,11 +59,11 @@ function get_team_conf {
     left_player_args="--player-config $left_player_config --config_dir $left_config_dir"
     left_coach_args="--coach-config $left_coach_config --use_team_graphic on"
   else
-    echo "Cannot find left team: $1"
+    add_log "Cannot find left team: $1"
     exit 255
   fi
-  if [ -f "$2" ]; then
-    right_team=$(dirname "$(readlink -f "$2")")
+  if [ -f "$right" ]; then
+    right_team=$(dirname "$(readlink -f "$right")")
     right_team_name=$(basename "$right_team")
     right_player=$(find "$right_team" -iname "*player")
     right_player_config=$(find "$right_team" -iname "player.conf")
@@ -58,7 +74,7 @@ function get_team_conf {
     right_player_args="--player-config $right_player_config --config_dir $right_config_dir"
     right_coach_args="--coach-config $right_coach_config --use_team_graphic on"
   else
-    echo "Cannot find right team: $2"
+    add_log "Cannot find right team: $2"
     exit 255
   fi
 }
@@ -97,6 +113,7 @@ function get_server_conf {
 }
 
 function get_start {
+  cd "$LOG_DIR" || exit 255
   rcssserver $server_args &>$LOG_DIR/server.log &
   server_pid=$!
   sleep 1
@@ -107,11 +124,6 @@ function get_start {
 
   {
     cd "$left_team" || exit 255
-    # deal with librcsc
-    if [ -n "$(find "$left_team" -name "librcsc.so")" ]; then
-      LD_LIBRARY_PATH=.
-      export LD_LIBRARY_PATH
-    fi
     for ((i = 1; i <= 12; ++i)); do
       case $i in
       1)
@@ -126,16 +138,11 @@ function get_start {
       esac
       left_pid[$i]=$!
     done
-    unset LD_LIBRARY_PATH
   }
 
   {
-    # deal with librcsc
-    if [ -n "$(find "$right_team" -name "librcsc.so")" ]; then
-      cd "$right_team" || exit 255
-      export LD_LIBRARY_PATH=.
-    fi
-    for ((i = 1; i <= 12; ++i)); do
+    cd "$right_team" || exit 255
+    for ((i = 0; i < 12; ++i)); do
       case $i in
       1)
         $right_player -g $right_player_args -t $right_team_name &>$LOG_DIR/$right_team_name-player-$i.out.log &
@@ -149,8 +156,16 @@ function get_start {
       esac
       right_pid[$i]=$!
     done
-    unset LD_LIBRARY_PATH
   }
+}
+
+function get_stop {
+  # kill -INT "${left_pid[@]}"
+  set -x
+  add_log "$left_team_name VS $right_team_name in port: $port [Interupted]"
+  kill -INT "${left_pid[@]}" "${right_pid[@]}"
+  kill -INT "$server_pid"
+  exit "$1"
 }
 
 function get_check {
@@ -161,27 +176,32 @@ function get_check {
     if [ ! -e "/proc/$pid" ]; then
       if [ $count -gt 12 ]; then
         side=$right_team_name
-        count=$((count % 12))
       else
         side=$left_team_name
       fi
-      if [ $count -eq 0 ]; then
-        count="coach"
+      if [ $((count % 12)) -eq 0 ]; then
+        info="coach"
       else
-        count="player-$count"
+        info="player-$((count % 12))"
       fi
-      echo "Error: $side $count didn't work" >&2
-      echo "Please check $LOG_DIR/$side-$count.out.log"
-      exit 252
+      add_log "Error: $side $info didn't work"
+      add_log "Please check $LOG_DIR/$side-$info.out.log"
     fi
+    ((++count))
   done
-  echo "$left_team_name VS $right_team_name in port: $port"
+  add_log "$left_team_name VS $right_team_name in port: $port [Start]"
 
-  wait $server_pid
-  exit 0
 }
+
+# trap signal
+
+trap "get_stop 0" HUP INT
 
 get_team_conf "$1" "$2"
 get_server_conf "$3" "$4"
 get_start
 get_check
+
+wait $server_pid
+
+add_log "$left_team_name VS $right_team_name in port: $port [Finished]"
