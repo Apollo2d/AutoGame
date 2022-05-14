@@ -20,12 +20,11 @@ function add_log {
 if [[ -e "$LOCK_FILE" && -e "/proc/$daemon_pid" ]]; then
   daemon_pid="$(cat "$LOCK_FILE")"
 else
-  echo "Daemon is not running"
-  exit 250
+  daemon_pid=0
 fi
 
 # 用getopt重写
-while getopts "chks:" opt; do
+while getopts "cdfhks:" opt; do
   case $opt in
   c)
     if [ -e "$LOG_FILE" ]; then
@@ -33,16 +32,28 @@ while getopts "chks:" opt; do
     fi
     exit 0
     ;;
+  d)
+    ps aux | grep daemon.sh
+    ps aux | grep worker.sh
+    ps aux | grep rcssserver.sh
+    ;;
+  f)
+    tail -f "$LOG_FILE"
+    exit 0
+    ;;
+
   h)
     cat <<EOF
 ./manager.sh [-option] [arguments]
 Options:
 -c -- clean logfile
+-d -- display logs
 -h -- show help
 -k -- kill daemon
 -s -- send signal
 Signals:
 reload -- reload the configuration
+show -- show current games in logfile
 EOF
     ;;
   k)

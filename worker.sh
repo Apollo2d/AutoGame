@@ -159,15 +159,6 @@ function get_start {
   }
 }
 
-function get_stop {
-  # kill -INT "${left_pid[@]}"
-  set -x
-  add_log "$left_team_name VS $right_team_name in port: $port [Interupted]"
-  kill -INT "${left_pid[@]}" "${right_pid[@]}"
-  kill -INT "$server_pid"
-  exit "$1"
-}
-
 function get_check {
   sleep 5
   local count
@@ -193,15 +184,9 @@ function get_check {
 
 }
 
-# trap signal
-
-trap "get_stop 0" HUP INT
-
 get_team_conf "$1" "$2"
 get_server_conf "$3" "$4"
 get_start
 get_check
 
 wait $server_pid
-
-add_log "$left_team_name VS $right_team_name in port: $port [Finished]"
