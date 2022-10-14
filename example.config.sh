@@ -3,6 +3,10 @@
 MASTER_TEAM=/home/kawhicurry/Code/Apollo/NewApolloBase/build/Apollo-exe/start.sh
 export MASTER_TEAM
 
+# enable monitor
+# MONITOR=rcssmonitor # uncomment to enable monitor
+export MONITOR
+
 # cpu load limit
 CORE=$(nproc)
 LOAD_RATE=0.7
